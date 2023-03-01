@@ -25,3 +25,8 @@ Display::~Display()
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
+
+void Display::draw() const
+{
+    SDL_RenderPresent(renderer);
+}

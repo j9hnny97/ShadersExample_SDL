@@ -9,6 +9,8 @@ public:
     Display(int x, int y, int w, int h);
     ~Display();
 
+    void draw() const;
+
     SDL_Renderer* renderer = nullptr;
     SDL_Window* window = nullptr;
 };
