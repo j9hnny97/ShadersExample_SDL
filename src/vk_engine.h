@@ -27,20 +27,20 @@ public:
 
 struct DeletionQueue
 {
-    std::deque<std::function<void()>> deletors;
+	std::deque<std::function<void()>> deletors;
 
-    void push_function(std::function<void()>&& function) {
-        deletors.push_back(function);
-    }
+	void push_function(std::function<void()>&& function) {
+		deletors.push_back(function);
+	}
 
-    void flush() {
-        // reverse iterate the deletion queue to execute all the functions
-        for (auto it = deletors.rbegin(); it != deletors.rend(); it++) {
-            (*it)(); //call functors
-        }
+	void flush() {
+		// reverse iterate the deletion queue to execute all the functions
+		for (auto it = deletors.rbegin(); it != deletors.rend(); it++) {
+			(*it)(); //call functors
+		}
 
-        deletors.clear();
-    }
+		deletors.clear();
+	}
 };
 
 
@@ -48,10 +48,10 @@ class VulkanEngine {
 public:
 
 	bool _isInitialized{ false };
-	int _frameNumber {0};
+	int _frameNumber{ 0 };
 	int _selectedShader{ 0 };
 
-	VkExtent2D _windowExtent{ 1700 , 900 };
+	VkExtent2D _windowExtent{ 800 , 800 };
 
 	struct SDL_Window* _window{ nullptr };
 
@@ -68,7 +68,7 @@ public:
 
 	VkCommandPool _commandPool;
 	VkCommandBuffer _mainCommandBuffer;
-	
+
 	VkRenderPass _renderPass;
 
 	VkSurfaceKHR _surface;
@@ -84,7 +84,7 @@ public:
 	VkPipeline _trianglePipeline;
 	VkPipeline _redTrianglePipeline;
 
-    DeletionQueue _mainDeletionQueue;
+	DeletionQueue _mainDeletionQueue;
 
 	//initializes everything in the engine
 	void init();

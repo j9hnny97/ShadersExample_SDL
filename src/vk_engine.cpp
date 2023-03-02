@@ -12,7 +12,6 @@
 #include <iostream>
 #include <fstream>
 
-#include "Definitions.h"
 
 constexpr bool bUseValidationLayers = true;
 
@@ -35,15 +34,16 @@ void VulkanEngine::init()
 	// We initialize SDL and create a window with it. 
 	SDL_Init(SDL_INIT_VIDEO);
 
-	SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_VULKAN);
-	
+	Uint32 const flags = SDL_WINDOW_VULKAN | SDL_WINDOW_SHOWN;
+	SDL_SetHint(SDL_HINT_RENDER_BATCHING, "1");
+
 	_window = SDL_CreateWindow(
 		"Vulkan Engine",
 		SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED,
 		_windowExtent.width,
 		_windowExtent.height,
-		window_flags
+		flags
 	);
 
 	init_vulkan();
@@ -64,9 +64,9 @@ void VulkanEngine::init()
 	_isInitialized = true;
 }
 void VulkanEngine::cleanup()
-{	
+{
 	if (_isInitialized) {
-		
+
 		//make sure the gpu has stopped doing its things
 		vkDeviceWaitIdle(_device);
 
@@ -109,8 +109,8 @@ void VulkanEngine::draw()
 
 	//make a clear-color from frame number. This will flash with a 120 frame period.
 	VkClearValue clearValue;
-	float flash = abs(sin(_frameNumber / 120.f));
-	clearValue.color = { { 0.0f, 0.0f, flash, 1.0f } };
+	float flash = abs(sin(10*_frameNumber / 120.f));
+	clearValue.color = { { 0.0f, 0.0f, flash, 0.0f } };
 
 	//start the main renderpass. 
 	//We will use the clear color from above, and the framebuffer of the index the swapchain gave us
@@ -256,7 +256,7 @@ void VulkanEngine::init_vulkan()
 
 void VulkanEngine::init_swapchain()
 {
-	vkb::SwapchainBuilder swapchainBuilder{_chosenGPU,_device,_surface };
+	vkb::SwapchainBuilder swapchainBuilder{ _chosenGPU,_device,_surface };
 
 	vkb::Swapchain vkbSwapchain = swapchainBuilder
 		.use_default_format_selection()
@@ -325,7 +325,7 @@ void VulkanEngine::init_default_renderpass()
 	render_pass_info.dependencyCount = 1;
 	render_pass_info.pDependencies = &dependency;
 
-	
+
 	VK_CHECK(vkCreateRenderPass(_device, &render_pass_info, nullptr, &_renderPass));
 
 	_mainDeletionQueue.push_function([=]() {
@@ -384,19 +384,20 @@ void VulkanEngine::init_sync_structures()
 	//enqueue the destruction of the fence
 	_mainDeletionQueue.push_function([=]() {
 		vkDestroyFence(_device, _renderFence, nullptr);
-		});
+	});
 	VkSemaphoreCreateInfo semaphoreCreateInfo = vkinit::semaphore_create_info();
 
 	VK_CHECK(vkCreateSemaphore(_device, &semaphoreCreateInfo, nullptr, &_presentSemaphore));
 	VK_CHECK(vkCreateSemaphore(_device, &semaphoreCreateInfo, nullptr, &_renderSemaphore));
-	
+
 	//enqueue the destruction of semaphores
 	_mainDeletionQueue.push_function([=]() {
 		vkDestroySemaphore(_device, _presentSemaphore, nullptr);
 		vkDestroySemaphore(_device, _renderSemaphore, nullptr);
-		});
+	});
 }
 
+#include "Definitions.h"
 
 void VulkanEngine::init_pipelines()
 {
@@ -519,8 +520,6 @@ bool VulkanEngine::load_shader_module(const char* filePath, VkShaderModule* outS
 	std::ifstream file(filePath, std::ios::ate | std::ios::binary);
 
 	if (!file.is_open()) {
-
-		throw std::exception("hehe not found :3");
 		return false;
 	}
 

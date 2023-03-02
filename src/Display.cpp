@@ -5,13 +5,13 @@
 
 Display::Display(int x, int y, int w, int h)
 {
-    if (SDL_Init(SDL_INIT_EVERYTHING | SDL_VIDEO_OPENGL) != 0)
+    if (SDL_Init(SDL_INIT_VIDEO) != 0)
     {
         std::cerr << "SDL_Init failed: " << SDL_GetError() << std::endl;
     }
     else
     {
-        window = SDL_CreateWindow("Hello there!", x, y, w, h, 0);
+        window = SDL_CreateWindow("Hello there!", x, y, w, h, SDL_WINDOW_VULKAN);
         SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
 
         renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
